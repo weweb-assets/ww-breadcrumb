@@ -10,23 +10,61 @@ export default {
             en: 'Breadcrumbs',
         },
         icon: 'map',
+        customStylePropertiesOrder: [
+            ['colorsTitle', 'linkColor', 'activeColor', 'separatorColor', 'iconColor'],
+            ['typographyTitle', 'fontSize', 'activeItemFontWeight', 'hoverDecoration'],
+            ['spacingLayoutTitle', 'itemSpacing'],
+            ['separatorsBordersTitle', 'separatorSpacing', 'separatorSize'],
+            ['pillBackgroundColor', 'activePillBackgroundColor', 'arrowBackgroundColor'],
+        ],
+        customSettingsPropertiesOrder: [
+            ['mode'],
+            ['displayStyle', 'separatorType', 'customSeparator', 'collapse'],
+            ['items', 'labelPropertyPath', 'urlPropertyPath', 'iconPropertyPath'],
+        ],
     },
     properties: {
+        // Style section titles
+        colorsTitle: {
+            type: 'Title',
+            label: 'Colors',
+            section: 'style',
+            editorOnly: true,
+        },
+        typographyTitle: {
+            type: 'Title',
+            label: 'Typography',
+            section: 'style',
+            editorOnly: true,
+        },
+        spacingLayoutTitle: {
+            type: 'Title',
+            label: 'Spacing & Layout',
+            section: 'style',
+            editorOnly: true,
+        },
+        separatorsBordersTitle: {
+            type: 'Title',
+            label: 'Separators & Borders',
+            section: 'style',
+            editorOnly: true,
+        },
+
         // Data settings
         items: {
             label: { en: 'Breadcrumb Items' },
             type: 'Array',
             section: 'settings',
             bindable: true,
+            hidden: content => content.mode === 'auto',
             defaultValue: [
                 {
                     label: 'Home',
-                    url: '/',
-                    icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M11.47 3.84a.75.75 0 011.06 0l8.69 8.69a.75.75 0 101.06-1.06l-8.689-8.69a2.25 2.25 0 00-3.182 0l-8.69 8.69a.75.75 0 001.061 1.06l8.69-8.69z" /><path d="M12 5.432l8.159 8.159c.03.03.06.058.091.086v6.198c0 1.035-.84 1.875-1.875 1.875H15a.75.75 0 01-.75-.75v-4.5a.75.75 0 00-.75-.75h-3a.75.75 0 00-.75.75V21a.75.75 0 01-.75.75H5.625a1.875 1.875 0 01-1.875-1.875v-6.198a2.29 2.29 0 00.091-.086L12 5.43z" /></svg>',
+                    link: '/',
                 },
-                { label: 'Products', url: '/products' },
-                { label: 'Category', url: '/products/category' },
-                { label: 'Current Page', url: '/products/category/item' },
+                { label: 'Products', link: '/products' },
+                { label: 'Category', link: '/products/category' },
+                { label: 'Current Page', link: '/products/category/item' },
             ],
             options: {
                 expandable: true,
@@ -47,15 +85,16 @@ export default {
                                 type: 'Text',
                                 options: { placeholder: 'Item Label' },
                             },
-                            url: {
-                                label: 'URL',
-                                type: 'Text',
-                                options: { placeholder: '/path/to/page' },
+                            link: {
+                                label: 'Link',
+                                type: 'Link',
+                                defaultValue: {
+                                    en: '#',
+                                },
                             },
                             icon: {
-                                label: 'Icon (SVG)',
-                                type: 'Text',
-                                options: { placeholder: '<svg>...</svg>' },
+                                label: 'Icon',
+                                type: 'SystemIcon',
                             },
                         },
                     },
@@ -67,10 +106,8 @@ export default {
                 tooltip: 'Bind to an array of objects with label, url, and optional icon properties',
             },
             propertyHelp: {
-                tooltip: content =>
-                    content.mode === 'auto'
-                        ? 'In Auto mode, breadcrumbs are generated from the page URL path'
-                        : 'The items to display in the breadcrumb navigation',
+                tooltip:
+                    'In Auto mode, breadcrumbs are generated from the page URL path. In Manual mode, you can define the items to display in the breadcrumb navigation here.',
             },
             /* wwEditor:end */
         },
@@ -125,7 +162,7 @@ export default {
             options: content => ({
                 object: content.items?.[0] || {},
             }),
-            defaultValue: 'url',
+            defaultValue: 'link',
             hidden: (content, sidepanelContent, boundProps) =>
                 content.mode === 'auto' || !Array.isArray(content.items) || !content.items?.length || !boundProps.items,
             /* wwEditor:start */
@@ -156,22 +193,6 @@ export default {
             },
             propertyHelp: {
                 tooltip: 'Select which property from your items to use as the icon',
-            },
-            /* wwEditor:end */
-        },
-        initialValue: {
-            label: { en: 'Initial selected item' },
-            type: 'Text',
-            bindable: true,
-            section: 'settings',
-            defaultValue: null,
-            /* wwEditor:start */
-            bindingValidation: {
-                type: 'object',
-                tooltip: 'The initially selected breadcrumb item',
-            },
-            propertyHelp: {
-                tooltip: 'Set the initially selected breadcrumb item',
             },
             /* wwEditor:end */
         },
@@ -245,40 +266,8 @@ export default {
             },
             /* wwEditor:end */
         },
-        showHomeIcon: {
-            label: { en: 'Show Home Icon' },
-            type: 'OnOff',
-            section: 'settings',
-            bindable: true,
-            defaultValue: true,
-            /* wwEditor:start */
-            bindingValidation: {
-                type: 'boolean',
-                tooltip: 'Whether to show a home icon for the first item',
-            },
-            propertyHelp: {
-                tooltip: 'Display a home icon for the first breadcrumb item',
-            },
-            /* wwEditor:end */
-        },
-        disableLastItemLink: {
-            label: { en: 'Disable Last Item Link' },
-            type: 'OnOff',
-            section: 'settings',
-            bindable: true,
-            defaultValue: true,
-            /* wwEditor:start */
-            bindingValidation: {
-                type: 'boolean',
-                tooltip: 'Whether to disable the link for the last (current) item',
-            },
-            propertyHelp: {
-                tooltip: 'Make the last breadcrumb item non-clickable',
-            },
-            /* wwEditor:end */
-        },
-        responsiveCollapse: {
-            label: { en: 'Collapse on Mobile' },
+        collapse: {
+            label: { en: 'Collapse the breacrumb' },
             type: 'OnOff',
             section: 'settings',
             bindable: true,
@@ -286,10 +275,11 @@ export default {
             /* wwEditor:start */
             bindingValidation: {
                 type: 'boolean',
-                tooltip: 'Whether to collapse the breadcrumbs on mobile devices',
+                tooltip: 'Whether to collapse the breadcrumbs',
             },
             propertyHelp: {
-                tooltip: 'On small screens, show only first and last items with ellipsis',
+                tooltip:
+                    'This property should be enabled on small screens, show only first and last items with ellipsis',
             },
             /* wwEditor:end */
         },
@@ -300,7 +290,7 @@ export default {
             type: 'Color',
             section: 'style',
             bindable: true,
-            defaultValue: '#0066cc',
+            defaultValue: '#6B7280',
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
@@ -316,7 +306,7 @@ export default {
             type: 'Color',
             section: 'style',
             bindable: true,
-            defaultValue: '#333333',
+            defaultValue: '#111827',
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
@@ -332,7 +322,7 @@ export default {
             type: 'Color',
             section: 'style',
             bindable: true,
-            defaultValue: '#999999',
+            defaultValue: '#9CA3AF',
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
@@ -348,7 +338,7 @@ export default {
             type: 'Color',
             section: 'style',
             bindable: true,
-            defaultValue: '#666666',
+            defaultValue: '#4B5563',
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
@@ -414,22 +404,6 @@ export default {
         },
 
         // Styling - Typography
-        fontFamily: {
-            label: { en: 'Font Family' },
-            type: 'FontFamily',
-            section: 'style',
-            bindable: true,
-            defaultValue: null,
-            /* wwEditor:start */
-            bindingValidation: {
-                type: 'string',
-                tooltip: 'The font family for breadcrumb text',
-            },
-            propertyHelp: {
-                tooltip: 'Set the font family for all breadcrumb text',
-            },
-            /* wwEditor:end */
-        },
         fontSize: {
             label: { en: 'Font Size' },
             type: 'Length',
@@ -446,43 +420,12 @@ export default {
             },
             /* wwEditor:end */
         },
-        fontWeight: {
-            label: { en: 'Font Weight' },
-            type: 'TextSelect',
-            section: 'style',
-            bindable: true,
-            defaultValue: 'normal',
-            options: {
-                options: [
-                    { value: 'normal', label: 'Normal' },
-                    { value: 'bold', label: 'Bold' },
-                    { value: '100', label: '100 (Thin)' },
-                    { value: '200', label: '200' },
-                    { value: '300', label: '300' },
-                    { value: '400', label: '400 (Normal)' },
-                    { value: '500', label: '500 (Medium)' },
-                    { value: '600', label: '600 (Semi-Bold)' },
-                    { value: '700', label: '700 (Bold)' },
-                    { value: '800', label: '800' },
-                    { value: '900', label: '900 (Black)' },
-                ],
-            },
-            /* wwEditor:start */
-            bindingValidation: {
-                type: 'string',
-                tooltip: 'The font weight for breadcrumb text',
-            },
-            propertyHelp: {
-                tooltip: 'Set the font weight for breadcrumb items',
-            },
-            /* wwEditor:end */
-        },
         activeItemFontWeight: {
             label: { en: 'Active Item Font Weight' },
             type: 'TextSelect',
             section: 'style',
             bindable: true,
-            defaultValue: 'bold',
+            defaultValue: '600',
             options: {
                 options: [
                     { value: 'normal', label: 'Normal' },
@@ -513,7 +456,7 @@ export default {
             type: 'TextSelect',
             section: 'style',
             bindable: true,
-            defaultValue: 'underline',
+            defaultValue: 'none',
             options: {
                 options: [
                     { value: 'none', label: 'None' },
@@ -533,45 +476,12 @@ export default {
             /* wwEditor:end */
         },
 
-        // Styling - Layout
-        horizontalPadding: {
-            label: { en: 'Horizontal Padding' },
-            type: 'Length',
-            section: 'style',
-            bindable: true,
-            defaultValue: '0px',
-            /* wwEditor:start */
-            bindingValidation: {
-                type: 'string',
-                tooltip: 'The horizontal padding of the breadcrumbs container',
-            },
-            propertyHelp: {
-                tooltip: 'Set the left and right padding for the breadcrumbs container',
-            },
-            /* wwEditor:end */
-        },
-        verticalPadding: {
-            label: { en: 'Vertical Padding' },
-            type: 'Length',
-            section: 'style',
-            bindable: true,
-            defaultValue: '8px',
-            /* wwEditor:start */
-            bindingValidation: {
-                type: 'string',
-                tooltip: 'The vertical padding of the breadcrumbs container',
-            },
-            propertyHelp: {
-                tooltip: 'Set the top and bottom padding for the breadcrumbs container',
-            },
-            /* wwEditor:end */
-        },
         itemSpacing: {
             label: { en: 'Item Spacing' },
             type: 'Length',
             section: 'style',
             bindable: true,
-            defaultValue: '4px',
+            defaultValue: '8px',
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
@@ -587,7 +497,7 @@ export default {
             type: 'Length',
             section: 'style',
             bindable: true,
-            defaultValue: '8px',
+            defaultValue: '12px',
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
@@ -603,7 +513,7 @@ export default {
             type: 'Length',
             section: 'style',
             bindable: true,
-            defaultValue: '14px',
+            defaultValue: '12px',
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
@@ -614,21 +524,17 @@ export default {
             },
             /* wwEditor:end */
         },
-        borderRadius: {
-            label: { en: 'Border Radius' },
-            type: 'Length',
-            section: 'style',
-            bindable: true,
-            defaultValue: '0px',
-            /* wwEditor:start */
-            bindingValidation: {
-                type: 'string',
-                tooltip: 'The border radius of the breadcrumbs container',
-            },
-            propertyHelp: {
-                tooltip: 'Set the border radius for the breadcrumbs container',
-            },
-            /* wwEditor:end */
+        linkElement: {
+            hidden: true,
+            defaultValue: { isWwObject: true, type: 'ww-flexbox' },
+        },
+        iconElement: {
+            hidden: true,
+            defaultValue: { isWwObject: true, type: 'ww-icon' },
+        },
+        textElement: {
+            hidden: true,
+            defaultValue: { isWwObject: true, type: 'ww-text' },
         },
     },
     triggerEvents: [

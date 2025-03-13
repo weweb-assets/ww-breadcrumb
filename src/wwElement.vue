@@ -1,7 +1,7 @@
 <template>
     <nav
         class="breadcrumbs-container"
-        :class="[`style-${content.displayStyle || 'standard'}`, { responsive: content.responsiveCollapse }]"
+        :class="[`style-${content.displayStyle || 'standard'}`, { collapsed: content.collapse }]"
         aria-label="Breadcrumb"
     >
         <ol class="breadcrumbs-list">
@@ -10,90 +10,56 @@
                 :key="index"
                 class="breadcrumb-item"
                 :class="{
-                    active: index === breadcrumbItems.length - 1,
+                    active: item.isActive,
                     'with-icon': item.icon,
                 }"
             >
-                <!-- Home icon special case -->
-                <span
-                    v-if="index === 0 && content.showHomeIcon"
-                    class="breadcrumb-icon home-icon"
-                    :style="{ color: content.iconColor }"
-                >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
-                        width="16"
-                        height="16"
+                <wwLayoutItemContext is-repeat :index="index" :data="item">
+                    <wwElement
+                        v-bind="content.linkElement"
+                        class="breadcrumb-link"
+                        :ww-props="{ wwLink: item.link, noDropzone: true }"
                     >
-                        <path
-                            d="M11.47 3.84a.75.75 0 011.06 0l8.69 8.69a.75.75 0 101.06-1.06l-8.689-8.69a2.25 2.25 0 00-3.182 0l-8.69 8.69a.75.75 0 001.061 1.06l8.69-8.69z"
+                        <wwElement
+                            :ww-props="{ icon: item.icon, color: content.iconColor }"
+                            v-bind="content.iconElement"
+                            class="breadcrumb-icon"
+                            v-if="item.icon"
                         />
-                        <path
-                            d="M12 5.432l8.159 8.159c.03.03.06.058.091.086v6.198c0 1.035-.84 1.875-1.875 1.875H15a.75.75 0 01-.75-.75v-4.5a.75.75 0 00-.75-.75h-3a.75.75 0 00-.75.75V21a.75.75 0 01-.75.75H5.625a1.875 1.875 0 01-1.875-1.875v-6.198a2.29 2.29 0 00.091-.086L12 5.43z"
+
+                        <wwElement
+                            :ww-props="{ text: item.label }"
+                            v-bind="content.textElement"
+                            class="breadcrumb-text"
                         />
-                    </svg>
-                </span>
+                    </wwElement>
 
-                <!-- Item icon if present -->
-                <span v-else-if="item.icon" class="breadcrumb-icon" :style="{ color: content.iconColor }">
-                    <span v-html="item.icon"></span>
-                </span>
-
-                <!-- Item link or text -->
-                <a
-                    v-if="index !== breadcrumbItems.length - 1 || !content.disableLastItemLink"
-                    href="#"
-                    class="breadcrumb-link"
-                    :style="{
-                        color: index === breadcrumbItems.length - 1 ? content.activeColor : content.linkColor,
-                        fontWeight:
-                            index === breadcrumbItems.length - 1 ? content.activeItemFontWeight : content.fontWeight,
-                        fontSize: content.fontSize,
-                        fontFamily: content.fontFamily,
-                    }"
-                    @click.prevent="onItemClick(item, index)"
-                >
-                    {{ item.label }}
-                </a>
-                <span
-                    v-else
-                    class="breadcrumb-text"
-                    :style="{
-                        color: content.activeColor,
-                        fontWeight: content.activeItemFontWeight,
-                        fontSize: content.fontSize,
-                        fontFamily: content.fontFamily,
-                    }"
-                >
-                    {{ item.label }}
-                </span>
-
-                <!-- Separator -->
-                <span
-                    v-if="index < breadcrumbItems.length - 1"
-                    class="breadcrumb-separator"
-                    :style="{
-                        color: content.separatorColor,
-                        fontSize: content.separatorSize,
-                    }"
-                >
+                    <!-- Separator -->
                     <span
-                        v-if="content.separatorType === 'custom' && content.customSeparator"
-                        v-html="content.customSeparator"
-                    ></span>
-                    <template v-else>
-                        {{ getSeparator(content.separatorType) }}
-                    </template>
-                </span>
+                        v-if="index < breadcrumbItems.length - 1"
+                        class="breadcrumb-separator"
+                        :style="{
+                            color: content.separatorColor,
+                            fontSize: content.separatorSize,
+                        }"
+                    >
+                        <span
+                            v-if="content.separatorType === 'custom' && content.customSeparator"
+                            v-html="content.customSeparator"
+                        ></span>
+                        <template v-else>
+                            {{ getSeparator(content.separatorType) }}
+                        </template>
+                    </span>
+                </wwLayoutItemContext>
             </li>
         </ol>
     </nav>
 </template>
 
 <script>
-import { computed, ref, watch } from 'vue';
+import { computed, watch, ref, watchEffect } from 'vue';
+import { useBrowserLocation } from '@vueuse/core';
 
 export default {
     props: {
@@ -111,47 +77,103 @@ export default {
     },
     emits: ['trigger-event'],
     setup(props, { emit }) {
-        // Add this function inside the setup function, before the breadcrumbItems computed property
-        const generateBreadcrumbsFromUrl = () => {
-            // Get the current page URL path
-            const currentPath = wwLib.getFrontWindow().location.pathname;
+        // Use VueUse's useBrowserLocation for reactive location
+        const location = useBrowserLocation();
 
+        // Create a map to store icon HTML for each item
+        const itemIconsHTML = ref({});
+
+        // Get current editor path if in editor
+        const getEditorPath = () => {
+            /* wwEditor:start */
+            const currentPaths = wwLib.wwWebsiteData.getCurrentPage().paths;
+            return currentPaths[wwLib.wwLang.lang] || currentPaths.default;
+            /* wwEditor:end */
+            return null;
+        };
+
+        // Reactive path that uses the editor path in editor, or browser location in preview
+        const currentPath = computed(() => {
+            const editorPath = getEditorPath();
+            return editorPath || location.value.pathname;
+        });
+
+        // Match a path and return the matched page if found
+        const matchPath = path => {
+            // Get all website pages
+            const pages = wwLib.wwWebsiteData.getPages();
+
+            // Normalize input path (remove leading slash if present)
+            const normalizedPath = path.startsWith('/') ? path.substring(1) : path;
+
+            for (const page of pages) {
+                // Get the correct path for current language
+                const pagePath = page.paths[wwLib.wwLang.lang] || page.paths.default;
+
+                // Skip pages without paths
+                if (!pagePath) continue;
+
+                if (normalizedPath === '' && pagePath === 'home') {
+                    return page;
+                }
+
+                // Convert page path pattern to regex
+                // Replace {{varName|defaultValue}} with regex that matches any value
+                const pathPattern = pagePath.replace(/\{\{[^}]+\}\}/g, '[^/]+');
+                const pathRegex = new RegExp(`^${pathPattern}$`);
+
+                // Check if normalized path matches the pattern
+                if (pathRegex.test(normalizedPath)) {
+                    return page;
+                }
+            }
+
+            return null;
+        };
+
+        // Generate breadcrumbs from the reactive URL path
+        const generateBreadcrumbsFromUrl = () => {
             // Split the path into segments and filter out empty segments
-            const pathSegments = currentPath.split('/').filter(segment => segment);
+            const pathSegments = currentPath.value.split('/').filter(segment => segment);
+            if (pathSegments[0] !== '') {
+                pathSegments.unshift('');
+            }
 
             // Create breadcrumb items from path segments
             const items = [];
 
-            // Always add home item
-            items.push({
-                label: 'Home',
-                url: '/',
-                icon: props.content?.showHomeIcon
-                    ? '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M11.47 3.84a.75.75 0 011.06 0l8.69 8.69a.75.75 0 101.06-1.06l-8.689-8.69a2.25 2.25 0 00-3.182 0l-8.69 8.69a.75.75 0 001.061 1.06l8.69-8.69z" /><path d="M12 5.432l8.159 8.159c.03.03.06.058.091.086v6.198c0 1.035-.84 1.875-1.875 1.875H15a.75.75 0 01-.75-.75v-4.5a.75.75 0 00-.75-.75h-3a.75.75 0 00-.75.75V21a.75.75 0 01-.75.75H5.625a1.875 1.875 0 01-1.875-1.875v-6.198a2.29 2.29 0 00.091-.086L12 5.43z" /></svg>'
-                    : null,
-            });
-
             // Add items for each path segment
             let currentUrl = '';
+            const currentPageId = wwLib.wwWebsiteData.getCurrentPage().linkId;
+
             for (let i = 0; i < pathSegments.length; i++) {
                 const segment = pathSegments[i];
-                currentUrl += `/${segment}`;
+                if (segment !== '') {
+                    currentUrl += `/${segment}`;
+                }
 
                 // Format the segment for display (capitalize, replace hyphens with spaces)
                 const formattedLabel = segment.replace(/-/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
 
+                // Check if the path exists
+                const matchedPage = matchPath(currentUrl);
+
                 items.push({
-                    label: formattedLabel,
-                    url: currentUrl,
+                    label: segment === '' ? 'Home' : formattedLabel,
                     icon: null,
+                    isActive: matchedPage && matchedPage.linkId === currentPageId,
+                    ...(matchedPage
+                        ? {
+                              link: { type: 'internal', pageId: matchedPage.linkId, targetBlank: false },
+                          }
+                        : undefined),
                 });
             }
-
             return items;
         };
 
         // Update the breadcrumbItems computed property
-        const breadcrumbItems = computed(() => {
+        const rawBreadcrumbItems = computed(() => {
             // If in auto mode, generate breadcrumbs from URL path
             if (props.content?.mode === 'auto') {
                 return generateBreadcrumbsFromUrl();
@@ -161,9 +183,11 @@ export default {
             // Handle both array of objects and simple array of strings
             if (!Array.isArray(props.content?.items)) return [];
 
+            const currentPageId = wwLib.wwWebsiteData.getCurrentPage().linkId;
+
             return props.content.items.map(item => {
                 if (typeof item === 'string') {
-                    return { label: item };
+                    return { label: item, hasLink: false };
                 }
 
                 // If it's an object, ensure it has a label
@@ -173,22 +197,57 @@ export default {
                         props.content?.labelPropertyPath || 'label'
                     );
 
-                    const url = wwLib.wwUtils.resolveObjectPropertyPath(item, props.content?.urlPropertyPath || 'url');
+                    const link = wwLib.wwUtils.resolveObjectPropertyPath(
+                        item,
+                        props.content?.urlPropertyPath || 'link'
+                    );
 
                     const icon = wwLib.wwUtils.resolveObjectPropertyPath(
                         item,
                         props.content?.iconPropertyPath || 'icon'
                     );
 
-                    return {
+                    // Check if this item is active (if it has an internal link to the current page)
+                    const isActive = link?.type === 'internal' && link?.pageId === currentPageId;
+
+                    const data = {
                         ...item,
                         label: label || 'Unnamed',
-                        url: url || '#',
+                        link: link || null,
                         icon: icon || null,
+                        isActive: isActive,
                     };
+
+                    return data;
                 }
 
                 return { label: 'Invalid item' };
+            });
+        });
+
+        const links = new Map();
+
+        for (let i = 0; i < rawBreadcrumbItems.value.length; i++) {
+            const item = rawBreadcrumbItems.value[i];
+            if (item.link) {
+                links.set(i, wwLib.wwElement.useLink({ forcedLinkRef: item.link }));
+            }
+        }
+
+        const breadcrumbItems = computed(() => {
+            return rawBreadcrumbItems.value.map((item, index) => {
+                if (item.link) {
+                    const { hasLink, tag, properties } = links.get(index);
+
+                    return {
+                        ...item,
+                        hasLink: hasLink.value,
+                        linkTag: tag.value,
+                        linkProperties: properties.value,
+                    };
+                }
+
+                return item;
             });
         });
 
@@ -240,6 +299,11 @@ export default {
                 name: 'click',
                 event: { value: item, index },
             });
+
+            // Handle navigation using wwLib.wwApp.goTo
+            if (item.url && typeof wwLib !== 'undefined' && wwLib.wwApp) {
+                wwLib.wwApp.goTo(item.url);
+            }
         };
 
         // Watch for changes to initialValue
@@ -264,16 +328,16 @@ export default {
             getSeparator,
             onItemClick,
             isEditing,
+            itemIconsHTML,
         };
     },
 };
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .breadcrumbs-container {
     width: 100%;
-    padding: v-bind('content.verticalPadding || "8px"') v-bind('content.horizontalPadding || "0px"');
-    border-radius: v-bind('content.borderRadius || "0px"');
+    font-size: v-bind('content.fontSize || "14px"');
 
     .breadcrumbs-list {
         display: flex;
@@ -309,10 +373,15 @@ export default {
         .breadcrumb-link {
             text-decoration: none;
             transition: color 0.2s ease;
+            color: v-bind('content.linkColor || "#6B7280"');
+        }
 
-            &:hover {
-                text-decoration: v-bind('content.hoverDecoration');
-            }
+        .breadcrumb-text {
+            transition: text-decoration 0.2s ease;
+        }
+
+        .breadcrumb-link:hover .breadcrumb-text {
+            text-decoration: v-bind('content.hoverDecoration || "none"');
         }
 
         .breadcrumb-separator {
@@ -322,7 +391,8 @@ export default {
         &.active {
             .breadcrumb-link,
             .breadcrumb-text {
-                pointer-events: v-bind('content.disableLastItemLink ? "none" : "auto"');
+                font-weight: v-bind('content.activeItemFontWeight || "600"');
+                color: v-bind('content.activeColor || "#111827"');
             }
         }
     }
@@ -391,29 +461,28 @@ export default {
         }
     }
 
-    // Responsive behavior
-    &.responsive {
-        @media (max-width: 768px) {
-            .breadcrumbs-list {
-                .breadcrumb-item {
-                    &:not(:first-child):not(:last-child) {
-                        display: none;
-                    }
+    // Collapsed behavior
+    &.collapsed {
+        .breadcrumbs-list {
+            position: relative;
 
-                    &:first-child + .breadcrumb-item:not(:last-child) {
-                        display: flex;
+            // Hide all middle items
+            .breadcrumb-item:not(:first-child):not(:last-child) {
+                display: none;
+            }
 
-                        &:before {
-                            content: '...';
-                            margin: 0 8px;
-                        }
-
-                        .breadcrumb-link,
-                        .breadcrumb-text {
-                            display: none;
-                        }
-                    }
+            // Show ellipsis between first and last items
+            .breadcrumb-item:first-child {
+                &::after {
+                    content: '...';
+                    display: inline-block;
+                    margin: 0 8px;
                 }
+            }
+
+            // Adjust separator for the first item
+            .breadcrumb-item:first-child .breadcrumb-separator {
+                display: none;
             }
         }
     }
