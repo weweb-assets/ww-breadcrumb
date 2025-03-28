@@ -92,9 +92,33 @@ export default {
                                     en: '#',
                                 },
                             },
+                            iconEnabled: {
+                                label: 'Enable icon',
+                                type: 'OnOff',
+                                defaultValue: false,
+                                /* wwEditor:start */
+                                bindingValidation: {
+                                    type: 'boolean',
+                                    tooltip: 'Whether to enable icon selection for this item',
+                                },
+                                propertyHelp: {
+                                    tooltip: 'Toggle visibility of the icon field for this breadcrumb item',
+                                },
+                                /* wwEditor:end */
+                            },
                             icon: {
                                 label: 'Icon',
                                 type: 'SystemIcon',
+                                hidden: (content, sidepanelContent) => !sidepanelContent.iconEnabled,
+                                /* wwEditor:start */
+                                bindingValidation: {
+                                    type: 'string',
+                                    tooltip: 'Icon to display before the breadcrumb item text',
+                                },
+                                propertyHelp: {
+                                    tooltip: 'Choose an icon to be displayed before this breadcrumb item',
+                                },
+                                /* wwEditor:end */
                             },
                         },
                     },
@@ -543,29 +567,6 @@ export default {
             label: { en: 'On item click' },
             event: { value: null },
         },
-        {
-            name: 'change',
-            label: { en: 'On selection change' },
-            event: { value: null },
-            default: true,
-        },
-        {
-            name: 'initValueChange',
-            label: { en: 'On init value change' },
-            event: { value: null },
-        },
     ],
-    actions: [
-        {
-            action: 'setSelectedItem',
-            label: { en: 'Set selected item' },
-            args: [
-                {
-                    name: 'item',
-                    type: 'object',
-                    label: { en: 'Item' },
-                },
-            ],
-        },
-    ],
+    actions: [],
 };
