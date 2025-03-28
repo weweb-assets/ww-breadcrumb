@@ -173,7 +173,7 @@ export default {
         };
 
         // Update the breadcrumbItems computed property
-        const rawBreadcrumbItems = computed(() => {
+        const breadcrumbItems = computed(() => {
             // If in auto mode, generate breadcrumbs from URL path
             if (props.content?.mode === 'auto') {
                 return generateBreadcrumbsFromUrl();
@@ -222,32 +222,6 @@ export default {
                 }
 
                 return { label: 'Invalid item' };
-            });
-        });
-
-        const links = new Map();
-
-        for (let i = 0; i < rawBreadcrumbItems.value.length; i++) {
-            const item = rawBreadcrumbItems.value[i];
-            if (item.link) {
-                links.set(i, wwLib.wwElement.useLink({ forcedLinkRef: item.link }));
-            }
-        }
-
-        const breadcrumbItems = computed(() => {
-            return rawBreadcrumbItems.value.map((item, index) => {
-                if (item.link) {
-                    const { hasLink, tag, properties } = links.get(index);
-
-                    return {
-                        ...item,
-                        hasLink: hasLink.value,
-                        linkTag: tag.value,
-                        linkProperties: properties.value,
-                    };
-                }
-
-                return item;
             });
         });
 
