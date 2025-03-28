@@ -260,16 +260,6 @@ export default {
             return false;
         });
 
-        // Internal value for selected item
-        const { value: selectedItem, setValue: setSelectedItem } = wwLib.wwVariable.useComponentVariable({
-            uid: props.uid,
-            name: 'selectedItem',
-            type: 'object',
-            defaultValue: null,
-        });
-
-        // Computed properties
-
         // Methods
         const getSeparator = type => {
             switch (type) {
@@ -293,8 +283,6 @@ export default {
         const onItemClick = (item, index) => {
             if (isEditing.value) return;
 
-            setSelectedItem(item);
-
             emit('trigger-event', {
                 name: 'click',
                 event: { value: item, index },
@@ -306,25 +294,8 @@ export default {
             }
         };
 
-        // Watch for changes to initialValue
-        watch(
-            () => props.content?.initialValue,
-            newValue => {
-                if (newValue !== undefined && newValue !== null) {
-                    setSelectedItem(newValue);
-                    emit('trigger-event', {
-                        name: 'initValueChange',
-                        event: { value: newValue },
-                    });
-                }
-            },
-            { immediate: true }
-        );
-
         return {
             breadcrumbItems,
-            selectedItem,
-            setSelectedItem,
             getSeparator,
             onItemClick,
             isEditing,
