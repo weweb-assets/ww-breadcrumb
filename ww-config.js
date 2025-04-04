@@ -11,11 +11,11 @@ export default {
         },
         icon: 'map',
         customStylePropertiesOrder: [
-            ['colorsTitle', 'linkColor', 'activeColor', 'separatorColor', 'iconColor'],
+            ['colorsTitle', 'linkColor', 'activeColor', 'separatorColor', 'iconColor', 'activeIconColor'],
             ['typographyTitle', 'fontSize', 'activeItemFontWeight', 'hoverDecoration'],
             ['spacingLayoutTitle', 'itemSpacing'],
-            ['separatorsBordersTitle', 'separatorSpacing', 'separatorSize'],
-            ['pillBackgroundColor', 'activePillBackgroundColor', 'arrowBackgroundColor'],
+            ['separatorsBordersTitle', 'separatorSpacing', 'separatorSize', 'arrowColor'],
+            ['pillBackgroundColor', 'activePillBackgroundColor'],
         ],
         customSettingsPropertiesOrder: [
             ['mode'],
@@ -98,10 +98,8 @@ export default {
                                 /* wwEditor:start */
                                 bindingValidation: {
                                     type: 'string',
-                                    tooltip: 'Icon to display before the breadcrumb item text',
-                                },
-                                propertyHelp: {
-                                    tooltip: 'Choose an icon to be displayed before this breadcrumb item',
+                                    tooltip:
+                                        'Icon to display before the breadcrumb item text. Format: string (icon name like "home")',
                                 },
                                 /* wwEditor:end */
                             },
@@ -112,11 +110,8 @@ export default {
             /* wwEditor:start */
             bindingValidation: {
                 type: 'array',
-                tooltip: 'Bind to an array of objects with label, url, and optional icon properties',
-            },
-            propertyHelp: {
                 tooltip:
-                    'In Auto mode, breadcrumbs are generated from the page URL path. In Manual mode, you can define the items to display in the breadcrumb navigation here.',
+                    'Bind to an array of objects with label, url, and optional icon properties. Format: [{ label: "Home", link: "/", icon: "home" }]',
             },
             /* wwEditor:end */
         },
@@ -135,7 +130,8 @@ export default {
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
-                tooltip: 'The mode for generating breadcrumbs: manual (custom items) or auto (based on URL path)',
+                tooltip:
+                    'The mode for generating breadcrumbs: manual (custom items) or auto (based on URL path). Format: "manual" or "auto"',
             },
             propertyHelp: {
                 tooltip: 'Choose how breadcrumbs are generated - manually defined or automatically from URL path',
@@ -156,7 +152,7 @@ export default {
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
-                tooltip: 'The property path to use for item labels',
+                tooltip: 'The property path to use for item labels. Format: string (e.g. "label" or "displayName")',
             },
             propertyHelp: {
                 tooltip: 'Select which property from your items to use as the display label',
@@ -177,7 +173,7 @@ export default {
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
-                tooltip: 'The property path to use for item URLs',
+                tooltip: 'The property path to use for item URLs. Format: string (e.g. "link" or "url")',
             },
             propertyHelp: {
                 tooltip: 'Select which property from your items to use as the URL',
@@ -198,7 +194,7 @@ export default {
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
-                tooltip: 'The property path to use for item icons (SVG)',
+                tooltip: 'The property path to use for item icons. Format: string (e.g. "icon" or "iconName")',
             },
             propertyHelp: {
                 tooltip: 'Select which property from your items to use as the icon',
@@ -224,10 +220,7 @@ export default {
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
-                tooltip: 'The visual style of the breadcrumbs: standard, pills, arrows, or underline',
-            },
-            propertyHelp: {
-                tooltip: 'Choose how the breadcrumbs should be visually displayed',
+                tooltip: 'The visual style of the breadcrumbs. Format: "standard", "pills", "arrows", or "underline"',
             },
             /* wwEditor:end */
         },
@@ -237,6 +230,7 @@ export default {
             section: 'settings',
             bindable: true,
             defaultValue: 'slash',
+            hidden: content => content.displayStyle === 'arrows',
             options: {
                 options: [
                     { value: 'slash', label: 'Slash (/)' },
@@ -251,10 +245,8 @@ export default {
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
-                tooltip: 'The type of separator between breadcrumb items',
-            },
-            propertyHelp: {
-                tooltip: 'Choose what separator to use between breadcrumb items',
+                tooltip:
+                    'The type of separator between breadcrumb items. Format: "slash", "arrow", "chevron", "dot", "pipe", "dash", or "custom"',
             },
             /* wwEditor:end */
         },
@@ -264,11 +256,12 @@ export default {
             section: 'settings',
             bindable: true,
             defaultValue: '',
-            hidden: content => content.separatorType !== 'custom',
+            hidden: content => content.separatorType !== 'custom' || content.displayStyle === 'arrows',
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
-                tooltip: 'Custom separator text or HTML/SVG',
+                tooltip:
+                    'Custom separator text or HTML/SVG. Format: string (e.g. "-->", "▶" or "<span>&#8594;</span>")',
             },
             propertyHelp: {
                 tooltip: 'Enter custom text or HTML/SVG to use as separator',
@@ -284,7 +277,7 @@ export default {
             /* wwEditor:start */
             bindingValidation: {
                 type: 'boolean',
-                tooltip: 'Whether to collapse the breadcrumbs',
+                tooltip: 'Whether to collapse the breadcrumbs. Format: true or false',
             },
             propertyHelp: {
                 tooltip:
@@ -303,10 +296,7 @@ export default {
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
-                tooltip: 'The color of breadcrumb links',
-            },
-            propertyHelp: {
-                tooltip: 'Set the text color for breadcrumb links',
+                tooltip: 'The color of breadcrumb links. Format: hex color code (e.g. "#6B7280")',
             },
             /* wwEditor:end */
         },
@@ -319,10 +309,7 @@ export default {
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
-                tooltip: 'The color of the active/current breadcrumb item',
-            },
-            propertyHelp: {
-                tooltip: 'Set the text color for the current/active breadcrumb item',
+                tooltip: 'The color of the active/current breadcrumb item. Format: hex color code (e.g. "#111827")',
             },
             /* wwEditor:end */
         },
@@ -335,10 +322,8 @@ export default {
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
-                tooltip: 'The color of the separators between breadcrumb items',
-            },
-            propertyHelp: {
-                tooltip: 'Set the color for the separators between breadcrumb items',
+                tooltip:
+                    'The color of the separators between breadcrumb items. Format: hex color code (e.g. "#9CA3AF")',
             },
             /* wwEditor:end */
         },
@@ -351,10 +336,21 @@ export default {
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
-                tooltip: 'The color of icons in breadcrumb items',
+                tooltip: 'The color of icons in breadcrumb items. Format: hex color code (e.g. "#4B5563")',
             },
-            propertyHelp: {
-                tooltip: 'Set the color for icons displayed in breadcrumb items',
+            /* wwEditor:end */
+        },
+        activeIconColor: {
+            label: { en: 'Active Icon Color' },
+            type: 'Color',
+            section: 'style',
+            bindable: true,
+            defaultValue: '#111827',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip:
+                    'The color of icons in the active/current breadcrumb item. Format: hex color code (e.g. "#111827")',
             },
             /* wwEditor:end */
         },
@@ -370,10 +366,7 @@ export default {
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
-                tooltip: 'The background color of pill-style breadcrumb items',
-            },
-            propertyHelp: {
-                tooltip: 'Set the background color for pill-style breadcrumb items',
+                tooltip: 'The background color of pill-style breadcrumb items. Format: hex color code (e.g. "#f0f0f0")',
             },
             /* wwEditor:end */
         },
@@ -387,27 +380,24 @@ export default {
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
-                tooltip: 'The background color of the active pill-style breadcrumb item',
-            },
-            propertyHelp: {
-                tooltip: 'Set the background color for the active/current pill-style breadcrumb item',
+                tooltip:
+                    'The background color of the active pill-style breadcrumb item. Format: hex color code (e.g. "#e0e0e0")',
             },
             /* wwEditor:end */
         },
-        arrowBackgroundColor: {
-            label: { en: 'Arrow Background' },
+
+        arrowColor: {
+            label: { en: 'Arrow Color' },
             type: 'Color',
             section: 'style',
             bindable: true,
-            defaultValue: '#f0f0f0',
+            defaultValue: '#FFFFFF',
             hidden: content => content.displayStyle !== 'arrows',
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
-                tooltip: 'The background color of arrow-style breadcrumb items',
-            },
-            propertyHelp: {
-                tooltip: 'Set the background color for arrow-style breadcrumb items',
+                tooltip:
+                    'The color of the arrow shape in arrow-style breadcrumb items. Format: hex color code (e.g. "#FFFFFF")',
             },
             /* wwEditor:end */
         },
@@ -419,13 +409,20 @@ export default {
             section: 'style',
             bindable: true,
             defaultValue: '14px',
+            options: {
+                unitChoices: [
+                    { value: 'normal', label: 'auto', default: true },
+                    { value: 'px', label: 'px', min: 2, max: 100 },
+                    { value: '%', label: '%', min: 1, max: 100 },
+                    { value: 'em', label: 'em', min: 0.01, max: 10, digits: 3, step: 0.1 },
+                    { value: 'rem', label: 'rem', min: 0.01, max: 10, digits: 3, step: 0.1 },
+                ],
+            },
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
-                tooltip: 'The font size for breadcrumb text',
-            },
-            propertyHelp: {
-                tooltip: 'Set the font size for all breadcrumb text',
+                tooltip:
+                    'The font size for breadcrumb text. Format: CSS length value (e.g. "14px", "1.2em", "100%", etc.)',
             },
             /* wwEditor:end */
         },
@@ -453,10 +450,8 @@ export default {
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
-                tooltip: 'The font weight for the active/current breadcrumb item',
-            },
-            propertyHelp: {
-                tooltip: 'Set the font weight for the current/active breadcrumb item',
+                tooltip:
+                    'The font weight for the active/current breadcrumb item. Format: "normal", "bold", or number string ("100" to "900")',
             },
             /* wwEditor:end */
         },
@@ -477,10 +472,8 @@ export default {
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
-                tooltip: 'The text decoration for breadcrumb links on hover',
-            },
-            propertyHelp: {
-                tooltip: 'Set the text decoration when hovering over breadcrumb links',
+                tooltip:
+                    'The text decoration for breadcrumb links on hover. Format: "none", "underline", "overline", or "line-through"',
             },
             /* wwEditor:end */
         },
@@ -491,13 +484,21 @@ export default {
             section: 'style',
             bindable: true,
             defaultValue: '8px',
+            options: {
+                unitChoices: [
+                    { value: 'normal', label: 'auto', default: true },
+                    { value: 'px', label: 'px', min: 0, max: 100 },
+                    { value: '%', label: '%', min: 0, max: 100 },
+                    { value: 'em', label: 'em', min: 0, max: 10, digits: 3, step: 0.1 },
+                    { value: 'rem', label: 'rem', min: 0, max: 10, digits: 3, step: 0.1 },
+                    { value: 'unset', label: 'none' },
+                ],
+            },
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
-                tooltip: 'The spacing between breadcrumb items',
-            },
-            propertyHelp: {
-                tooltip: 'Set the spacing between individual breadcrumb items',
+                tooltip:
+                    'The spacing between breadcrumb items. Format: CSS length value (e.g. "8px", "0.5em", "2%", etc.)',
             },
             /* wwEditor:end */
         },
@@ -507,13 +508,20 @@ export default {
             section: 'style',
             bindable: true,
             defaultValue: '12px',
+            options: {
+                unitChoices: [
+                    { value: 'normal', label: 'auto', default: true },
+                    { value: 'px', label: 'px', min: 0, max: 100 },
+                    { value: '%', label: '%', min: 0, max: 100 },
+                    { value: 'em', label: 'em', min: 0, max: 10, digits: 3, step: 0.1 },
+                    { value: 'rem', label: 'rem', min: 0, max: 10, digits: 3, step: 0.1 },
+                    { value: 'unset', label: 'none' },
+                ],
+            },
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
-                tooltip: 'The spacing around separators',
-            },
-            propertyHelp: {
-                tooltip: 'Set the spacing around the separators between breadcrumb items',
+                tooltip: 'The spacing around separators. Format: CSS length value (e.g. "12px", "0.75em", "5%", etc.)',
             },
             /* wwEditor:end */
         },
@@ -523,13 +531,19 @@ export default {
             section: 'style',
             bindable: true,
             defaultValue: '12px',
+            options: {
+                unitChoices: [
+                    { value: 'normal', label: 'auto', default: true },
+                    { value: 'px', label: 'px', min: 1, max: 100 },
+                    { value: '%', label: '%', min: 0.1, max: 100 },
+                    { value: 'em', label: 'em', min: 0.01, max: 10, digits: 3, step: 0.1 },
+                    { value: 'rem', label: 'rem', min: 0.01, max: 10, digits: 3, step: 0.1 },
+                ],
+            },
             /* wwEditor:start */
             bindingValidation: {
                 type: 'string',
-                tooltip: 'The font size of separators',
-            },
-            propertyHelp: {
-                tooltip: 'Set the size of the separators between breadcrumb items',
+                tooltip: 'The font size of separators. Format: CSS length value (e.g. "12px", "0.8em", "120%", etc.)',
             },
             /* wwEditor:end */
         },
@@ -546,12 +560,4 @@ export default {
             defaultValue: { isWwObject: true, type: 'ww-text' },
         },
     },
-    triggerEvents: [
-        {
-            name: 'click',
-            label: { en: 'On item click' },
-            event: { value: null },
-        },
-    ],
-    actions: [],
 };

@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/no-v-html -->
 <template>
     <nav
         class="breadcrumbs-container"
@@ -21,10 +22,13 @@
                         :ww-props="{ wwLink: item.link, noDropzone: true }"
                     >
                         <wwElement
-                            :ww-props="{ icon: item.icon, color: content.iconColor }"
+                            v-if="item.icon"
+                            :ww-props="{
+                                icon: item.icon,
+                                color: item.isActive ? content.activeIconColor : content.iconColor,
+                            }"
                             v-bind="content.iconElement"
                             class="breadcrumb-icon"
-                            v-if="item.icon"
                         />
 
                         <wwElement
@@ -36,8 +40,13 @@
 
                     <!-- Separator -->
                     <span
-                        v-if="index < breadcrumbItems.length - 1"
                         class="breadcrumb-separator"
+                        :class="{
+                            'breadcrumb-separator-alignment-fix': ['chevron', 'arrow', 'dot', 'dash'].includes(
+                                content.separatorType
+                            ),
+                            'invisible-separator': index === breadcrumbItems.length - 1,
+                        }"
                         :style="{
                             color: content.separatorColor,
                             fontSize: content.separatorSize,
@@ -45,6 +54,7 @@
                     >
                         <span
                             v-if="content.separatorType === 'custom' && content.customSeparator"
+                            class="breadcrumb-separator-custom"
                             v-html="content.customSeparator"
                         ></span>
                         <template v-else>
@@ -58,7 +68,7 @@
 </template>
 
 <script>
-import { computed, watch, ref, watchEffect } from 'vue';
+import { computed, ref } from 'vue';
 import { useBrowserLocation } from '@vueuse/core';
 
 export default {
@@ -75,8 +85,7 @@ export default {
         wwEditorState: { type: Object, required: true },
         /* wwEditor:end */
     },
-    emits: ['trigger-event'],
-    setup(props, { emit }) {
+    setup(props) {
         // Use VueUse's useBrowserLocation for reactive location
         const location = useBrowserLocation();
 
@@ -89,6 +98,7 @@ export default {
             const currentPaths = wwLib.wwWebsiteData.getCurrentPage().paths;
             return currentPaths[wwLib.wwLang.lang] || currentPaths.default;
             /* wwEditor:end */
+            // eslint-disable-next-line no-unreachable
             return null;
         };
 
@@ -254,13 +264,8 @@ export default {
             }
         };
 
-        const onItemClick = (item, index) => {
+        const onItemClick = item => {
             if (isEditing.value) return;
-
-            emit('trigger-event', {
-                name: 'click',
-                event: { value: item, index },
-            });
 
             // Handle navigation using wwLib.wwApp.goTo
             if (item.url && typeof wwLib !== 'undefined' && wwLib.wwApp) {
@@ -281,7 +286,6 @@ export default {
 
 <style lang="scss">
 .breadcrumbs-container {
-    width: 100%;
     font-size: v-bind('content.fontSize || "14px"');
 
     .breadcrumbs-list {
@@ -309,9 +313,9 @@ export default {
             align-items: center;
             margin-right: 4px;
 
-            svg {
-                width: 16px;
-                height: 16px;
+            &.invisible-icon {
+                opacity: 0;
+                visibility: hidden;
             }
         }
 
@@ -331,6 +335,36 @@ export default {
 
         .breadcrumb-separator {
             margin: 0 v-bind('content.separatorSpacing || "8px"');
+            display: inline-flex;
+            align-items: center;
+
+            &.breadcrumb-separator-alignment-fix {
+                margin-top: calc(-0.14 * v-bind('parseInt(content.separatorSize || "12")') * 1px + 4px);
+            }
+
+            &.invisible-separator {
+                width: 0;
+                margin: 0;
+                visibility: hidden;
+            }
+
+            &-custom {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                /* Scale custom separator content to match separator size */
+                img,
+                svg {
+                    width: v-bind('content.separatorSize || "12px"');
+                    height: v-bind('content.separatorSize || "12px"');
+                    object-fit: contain;
+                }
+
+                /* Ensure text content is sized appropriately */
+                font-size: inherit;
+                line-height: 1;
+            }
         }
 
         &.active {
@@ -342,16 +376,18 @@ export default {
         }
     }
 
-    // Different styles
-    &.style-standard {
-        // Default style already applied
-    }
-
     &.style-pills {
         .breadcrumb-item {
             background-color: v-bind('content.pillBackgroundColor || "#f0f0f0"');
             padding: 4px 12px;
             border-radius: 16px;
+            display: flex;
+            align-items: center;
+
+            .breadcrumb-link {
+                display: flex;
+                align-items: center;
+            }
 
             .breadcrumb-separator {
                 background-color: transparent;
@@ -366,11 +402,11 @@ export default {
     &.style-arrows {
         .breadcrumb-item {
             position: relative;
-            padding: 4px 20px 4px 30px;
-            background-color: v-bind('content.arrowBackgroundColor || "#f0f0f0"');
+            padding: 4px calc(v-bind('content.separatorSpacing || "12px"') * 2) 4px
+                calc(v-bind('content.separatorSpacing || "12px"') * 2);
 
             &:first-child {
-                padding-left: 15px;
+                padding-left: v-bind('content.separatorSpacing || "12px"');
                 border-top-left-radius: 4px;
                 border-bottom-left-radius: 4px;
             }
@@ -380,16 +416,21 @@ export default {
                 border-bottom-right-radius: 4px;
             }
 
-            &:not(:last-child):after {
+            &:after {
                 content: '';
                 position: absolute;
                 top: 0;
-                right: -10px;
-                width: 20px;
+                right: calc(-0.5 * v-bind('content.separatorSize || "12px"'));
+                width: v-bind('content.separatorSize || "12px"');
                 height: 100%;
-                background-color: inherit;
-                clip-path: polygon(0 0, 50% 50%, 0 100%, 0 0, 100% 0, 50% 50%, 100% 100%, 0 100%);
+                background-color: v-bind('content.arrowColor || "#FFFFFF"');
+                clip-path: polygon(0% 0%, 75% 0%, 100% 50%, 75% 100%, 0% 100%, 25% 50%);
                 z-index: 1;
+                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            }
+
+            &:last-child:after {
+                right: calc(-0.5 * v-bind('content.separatorSize || "12px"'));
             }
 
             .breadcrumb-separator {
