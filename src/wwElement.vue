@@ -105,7 +105,47 @@ export default {
             return editorPath || frontRouter.currentRoute.value.path;
         });
 
-        // Match a path and return the matched page if found
+        // Extract path parameters from a path with dynamic segments
+        const extractPathParams = (templatePath, actualPath) => {
+            // Get param names from template path - matches {{paramName|defaultValue}}
+            const paramNameRegex = /\{\{([^|]+)\|[^}]*\}\}/g;
+            const paramNames = [];
+            let match;
+
+            while ((match = paramNameRegex.exec(templatePath)) !== null) {
+                paramNames.push(match[1]); // Add the param name (first capture group)
+            }
+
+            if (!paramNames.length) return null; // No params in this path
+
+            // Convert template path to regex with capture groups
+            // Replace {{paramName|defaultValue}} with capture groups
+            const regexTemplate = templatePath
+                .replace(/\//g, '\\/') // Escape slashes
+                .replace(/\{\{[^}]+\}\}/g, '([^/]+)'); // Replace param patterns with capture groups
+
+            const pathRegex = new RegExp(`^${regexTemplate}$`);
+
+            // Remove leading slash for matching
+            const normalizedActualPath = actualPath.startsWith('/') ? actualPath.substring(1) : actualPath;
+
+            // Extract values
+            const valueMatch = normalizedActualPath.match(pathRegex);
+
+            if (!valueMatch) return null;
+
+            // Create params object
+            const params = {};
+
+            // Skip index 0 which is the full match
+            for (let i = 0; i < paramNames.length; i++) {
+                params[paramNames[i]] = valueMatch[i + 1];
+            }
+
+            return params;
+        };
+
+        // Match a path and return the matched page if found, along with extracted parameters
         const matchPath = path => {
             // Get all website pages
             const pages = wwLib.wwWebsiteData.getPages();
@@ -121,7 +161,7 @@ export default {
                 if (!pagePath) continue;
 
                 if (normalizedPath === '' && pagePath === 'home') {
-                    return page;
+                    return { page, params: null };
                 }
 
                 // Convert page path pattern to regex
@@ -131,7 +171,10 @@ export default {
 
                 // Check if normalized path matches the pattern
                 if (pathRegex.test(normalizedPath)) {
-                    return page;
+                    // Extract params if the path contains dynamic segments
+                    const params = pagePath.includes('{{') ? extractPathParams(pagePath, normalizedPath) : null;
+
+                    return { page, params };
                 }
             }
 
@@ -163,15 +206,20 @@ export default {
                 const formattedLabel = segment.replace(/-/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
 
                 // Check if the path exists
-                const matchedPage = matchPath(currentUrl);
+                const matched = matchPath(currentUrl);
 
                 items.push({
                     label: segment === '' ? 'Home' : formattedLabel,
                     icon: null,
-                    isActive: matchedPage && matchedPage.linkId === currentPageId,
-                    ...(matchedPage
+                    isActive: matched && matched.page.linkId === currentPageId,
+                    ...(matched
                         ? {
-                              link: { type: 'internal', pageId: matchedPage.linkId, targetBlank: false },
+                              link: {
+                                  type: 'internal',
+                                  pageId: matched.page.linkId,
+                                  targetBlank: false,
+                                  ...(matched.params ? { parameters: matched.params } : {}),
+                              },
                           }
                         : undefined),
                 });
