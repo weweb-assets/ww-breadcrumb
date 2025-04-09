@@ -69,7 +69,6 @@
 
 <script>
 import { computed, ref } from 'vue';
-import { useBrowserLocation } from '@vueuse/core';
 
 export default {
     props: {
@@ -86,9 +85,6 @@ export default {
         /* wwEditor:end */
     },
     setup(props) {
-        // Use VueUse's useBrowserLocation for reactive location
-        const location = useBrowserLocation();
-
         // Create a map to store icon HTML for each item
         const itemIconsHTML = ref({});
 
@@ -102,10 +98,11 @@ export default {
             return null;
         };
 
-        // Reactive path that uses the editor path in editor, or browser location in preview
+        const frontRouter = wwLib.getFrontRouter();
+
         const currentPath = computed(() => {
             const editorPath = getEditorPath();
-            return editorPath || location.value.pathname;
+            return editorPath || frontRouter.currentRoute.value.path;
         });
 
         // Match a path and return the matched page if found
