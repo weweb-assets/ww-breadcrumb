@@ -202,8 +202,8 @@ export default {
                     currentUrl += `/${segment}`;
                 }
 
-                // Format the segment for display (capitalize, replace hyphens with spaces)
-                const formattedLabel = segment.replace(/-/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
+                // Format the segment for display (capitalize, replace hyphens with spaces, decode URL components)
+                const formattedLabel = decodeURIComponent(segment).replace(/-/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
 
                 // Check if the path exists
                 const matched = matchPath(currentUrl);
