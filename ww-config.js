@@ -56,6 +56,7 @@ export default {
             type: 'Array',
             section: 'settings',
             bindable: true,
+            classes: true,
             hidden: content => content.mode === 'auto',
             defaultValue: [
                 {
@@ -120,6 +121,7 @@ export default {
             type: 'TextRadioGroup',
             section: 'settings',
             bindable: true,
+            classes: true,
             defaultValue: 'manual',
             options: {
                 choices: [
@@ -143,6 +145,7 @@ export default {
             type: 'ObjectPropertyPath',
             section: 'settings',
             bindable: true,
+            classes: true,
             options: content => ({
                 object: content.items?.[0] || {},
             }),
@@ -164,6 +167,7 @@ export default {
             type: 'ObjectPropertyPath',
             section: 'settings',
             bindable: true,
+            classes: true,
             options: content => ({
                 object: content.items?.[0] || {},
             }),
@@ -185,6 +189,7 @@ export default {
             type: 'ObjectPropertyPath',
             section: 'settings',
             bindable: true,
+            classes: true,
             options: content => ({
                 object: content.items?.[0] || {},
             }),
@@ -208,6 +213,7 @@ export default {
             type: 'TextRadioGroup',
             section: 'settings',
             bindable: true,
+            classes: true,
             defaultValue: 'standard',
             options: {
                 choices: [
@@ -229,6 +235,7 @@ export default {
             type: 'TextSelect',
             section: 'settings',
             bindable: true,
+            classes: true,
             defaultValue: 'slash',
             hidden: content => content.displayStyle === 'arrows',
             options: {
@@ -255,6 +262,7 @@ export default {
             type: 'Text',
             section: 'settings',
             bindable: true,
+            classes: true,
             defaultValue: '',
             hidden: content => content.separatorType !== 'custom' || content.displayStyle === 'arrows',
             /* wwEditor:start */
@@ -273,6 +281,7 @@ export default {
             type: 'OnOff',
             section: 'settings',
             bindable: true,
+            classes: true,
             defaultValue: false,
             /* wwEditor:start */
             bindingValidation: {
@@ -292,6 +301,7 @@ export default {
             type: 'Color',
             section: 'style',
             bindable: true,
+            classes: true,
             defaultValue: '#6B7280',
             /* wwEditor:start */
             bindingValidation: {
@@ -305,6 +315,7 @@ export default {
             type: 'Color',
             section: 'style',
             bindable: true,
+            classes: true,
             defaultValue: '#111827',
             /* wwEditor:start */
             bindingValidation: {
@@ -318,6 +329,7 @@ export default {
             type: 'Color',
             section: 'style',
             bindable: true,
+            classes: true,
             defaultValue: '#9CA3AF',
             /* wwEditor:start */
             bindingValidation: {
@@ -332,6 +344,7 @@ export default {
             type: 'Color',
             section: 'style',
             bindable: true,
+            classes: true,
             defaultValue: '#4B5563',
             /* wwEditor:start */
             bindingValidation: {
@@ -345,6 +358,7 @@ export default {
             type: 'Color',
             section: 'style',
             bindable: true,
+            classes: true,
             defaultValue: '#111827',
             /* wwEditor:start */
             bindingValidation: {
@@ -361,6 +375,7 @@ export default {
             type: 'Color',
             section: 'style',
             bindable: true,
+            classes: true,
             defaultValue: '#f0f0f0',
             hidden: content => content.displayStyle !== 'pills',
             /* wwEditor:start */
@@ -375,6 +390,7 @@ export default {
             type: 'Color',
             section: 'style',
             bindable: true,
+            classes: true,
             defaultValue: '#e0e0e0',
             hidden: content => content.displayStyle !== 'pills',
             /* wwEditor:start */
@@ -391,6 +407,7 @@ export default {
             type: 'Color',
             section: 'style',
             bindable: true,
+            classes: true,
             defaultValue: '#FFFFFF',
             hidden: content => content.displayStyle !== 'arrows',
             /* wwEditor:start */
@@ -408,6 +425,7 @@ export default {
             type: 'Length',
             section: 'style',
             bindable: true,
+            classes: true,
             defaultValue: '14px',
             options: {
                 unitChoices: [
@@ -431,6 +449,7 @@ export default {
             type: 'TextSelect',
             section: 'style',
             bindable: true,
+            classes: true,
             defaultValue: '600',
             options: {
                 options: [
@@ -460,6 +479,7 @@ export default {
             type: 'TextSelect',
             section: 'style',
             bindable: true,
+            classes: true,
             defaultValue: 'none',
             options: {
                 options: [
@@ -483,6 +503,7 @@ export default {
             type: 'Length',
             section: 'style',
             bindable: true,
+            classes: true,
             defaultValue: '8px',
             options: {
                 unitChoices: [
@@ -507,6 +528,7 @@ export default {
             type: 'Length',
             section: 'style',
             bindable: true,
+            classes: true,
             defaultValue: '12px',
             options: {
                 unitChoices: [
@@ -530,6 +552,7 @@ export default {
             type: 'Length',
             section: 'style',
             bindable: true,
+            classes: true,
             defaultValue: '12px',
             options: {
                 unitChoices: [
