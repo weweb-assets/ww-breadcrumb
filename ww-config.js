@@ -56,7 +56,6 @@ export default {
             type: 'Array',
             section: 'settings',
             bindable: true,
-            classes: true,
             hidden: content => content.mode === 'auto',
             defaultValue: [
                 {
