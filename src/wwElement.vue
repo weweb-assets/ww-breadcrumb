@@ -32,7 +32,9 @@
                         />
 
                         <wwElement
-                            :ww-props="{ text: item.label }"
+                            :ww-props="{
+                                text: item.label,
+                            }"
                             v-bind="content.textElement"
                             class="breadcrumb-text"
                         />
@@ -203,7 +205,9 @@ export default {
                 }
 
                 // Format the segment for display (capitalize, replace hyphens with spaces, decode URL components)
-                const formattedLabel = decodeURIComponent(segment).replace(/-/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
+                const formattedLabel = decodeURIComponent(segment)
+                    .replace(/-/g, ' ')
+                    .replace(/\b\w/g, char => char.toUpperCase());
 
                 // Check if the path exists
                 const matched = matchPath(currentUrl);
@@ -267,7 +271,7 @@ export default {
 
                     const data = {
                         ...item,
-                        label: label || 'Unnamed',
+                        label: typeof label === 'object' ? wwLib.wwLang.getText(label) : label,
                         link: link || null,
                         icon: icon || null,
                         isActive: isActive,

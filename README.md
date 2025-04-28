@@ -15,6 +15,7 @@ This is an element for WeWeb that displays a breadcrumb navigation with multiple
 - Collapsible on small screens
 - Icon support for items
 - Fully customizable styling (colors, spacing, typography)
+- Multi-language support for breadcrumb item labels
 
 ## Installation
 
