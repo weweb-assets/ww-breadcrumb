@@ -119,7 +119,7 @@ export default {
             bindingValidation: {
                 type: 'array',
                 tooltip:
-                    'Bind to an array of objects with label, url, and optional icon properties. Format: [{ label: "Home", link: "/", icon: "home" }]',
+                    'Bind to an array of objects with label, url, and optional icon properties. Format: [{ label: "Home", link: "/", icon: "home" }]. Label can also be a multilang object: [{ label: { fr: "Accueil", en: "Home" }, link: "/", icon: "home" }]',
             },
             /* wwEditor:end */
         },
