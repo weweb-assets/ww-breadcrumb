@@ -59,22 +59,26 @@ export default {
             hidden: content => content.mode === 'auto',
             defaultValue: [
                 {
-                    label: 'Home',
+                    label: { en: 'Home' },
                     link: '/',
                 },
-                { label: 'Products', link: '/products' },
-                { label: 'Category', link: '/products/category' },
-                { label: 'Current Page', link: '/products/category/item' },
+                { label: { en: 'Products' }, link: '/products' },
+                { label: { en: 'Category' }, link: '/products/category' },
+                { label: { en: 'Current Page' }, link: '/products/category/item' },
             ],
             options: {
                 expandable: true,
                 getItemLabel(item, index) {
-                    return item?.label || `Item ${index + 1}`;
+                    const label = item?.label;
+                    if (!label) return `Item ${index + 1}`;
+                    return typeof label === 'string'
+                        ? label
+                        : label?.en || Object.values(label)[0] || `Item ${index + 1}`;
                 },
                 item: {
                     type: 'Object',
                     defaultValue: {
-                        label: 'New Item',
+                        label: { en: 'New Item' },
                         url: '#',
                         icon: null,
                     },
@@ -83,7 +87,11 @@ export default {
                             label: {
                                 label: 'Label',
                                 type: 'Text',
+                                multiLang: true,
                                 options: { placeholder: 'Item Label' },
+                                defaultValue: {
+                                    en: 'New Item',
+                                },
                             },
                             link: {
                                 label: 'Link',
@@ -111,7 +119,7 @@ export default {
             bindingValidation: {
                 type: 'array',
                 tooltip:
-                    'Bind to an array of objects with label, url, and optional icon properties. Format: [{ label: "Home", link: "/", icon: "home" }]',
+                    'Bind to an array of objects with label, url, and optional icon properties. Format: [{ label: "Home", link: "/", icon: "home" }]. Label can also be a multilang object: [{ label: { fr: "Accueil", en: "Home" }, link: "/", icon: "home" }]',
             },
             /* wwEditor:end */
         },
