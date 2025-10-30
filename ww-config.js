@@ -11,10 +11,29 @@ export default {
         },
         icon: 'map',
         customStylePropertiesOrder: [
-            ['colorsTitle', 'linkColor', 'activeColor', 'separatorColor', 'iconColor', 'activeIconColor'],
-            ['typographyTitle', 'fontSize', 'activeItemFontWeight', 'hoverDecoration'],
-            ['spacingLayoutTitle', 'itemSpacing'],
-            ['separatorsBordersTitle', 'separatorSpacing', 'separatorSize', 'arrowColor'],
+            {
+                label: "Colors",
+                isCollapsible: true,
+                properties: ['linkColor', 'activeColor', 'separatorColor', 'iconColor', 'activeIconColor'],
+
+            },
+            {
+                label: "Typography",
+                isCollapsible: true,
+                properties: ['fontSize', 'activeItemFontWeight', 'hoverDecoration'],
+
+            },
+            {
+                label: "Spacing & Layout",
+                isCollapsible: true,
+                properties: ['itemSpacing'],
+
+            },
+            {
+                label: "Separators & Borders",
+                isCollapsible: true,
+                properties: ['separatorSpacing', 'separatorSize', 'arrowColor'],
+            },
             ['pillBackgroundColor', 'activePillBackgroundColor'],
         ],
         customSettingsPropertiesOrder: [
@@ -24,32 +43,6 @@ export default {
         ],
     },
     properties: {
-        // Style section titles
-        colorsTitle: {
-            type: 'Title',
-            label: 'Colors',
-            section: 'style',
-            editorOnly: true,
-        },
-        typographyTitle: {
-            type: 'Title',
-            label: 'Typography',
-            section: 'style',
-            editorOnly: true,
-        },
-        spacingLayoutTitle: {
-            type: 'Title',
-            label: 'Spacing & Layout',
-            section: 'style',
-            editorOnly: true,
-        },
-        separatorsBordersTitle: {
-            type: 'Title',
-            label: 'Separators & Borders',
-            section: 'style',
-            editorOnly: true,
-        },
-
         // Data settings
         items: {
             label: { en: 'Breadcrumb Items' },
