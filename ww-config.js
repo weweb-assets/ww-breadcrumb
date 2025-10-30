@@ -34,11 +34,6 @@ export default {
                 isCollapsible: true,
                 properties: ['separatorSpacing', 'separatorSize', 'arrowColor'],
             },
-            {
-                label: "",
-                isCollapsible: true,
-                properties: [],
-            },
             ['pillBackgroundColor', 'activePillBackgroundColor'],
         ],
         customSettingsPropertiesOrder: [
