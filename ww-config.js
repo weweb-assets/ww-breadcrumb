@@ -39,7 +39,8 @@ export default {
         customSettingsPropertiesOrder: [
             ['mode'],
             ['displayStyle', 'separatorType', 'customSeparator', 'collapse'],
-            ['items', 'labelPropertyPath', 'urlPropertyPath', 'iconPropertyPath'],
+            ['items', 'labelPropertyPath', 'urlPropertyPath', 'iconPropertyPath', 'activePropertyPath'],
+            ['markLastItemActive'],
         ],
     },
     properties: {
@@ -203,6 +204,46 @@ export default {
             },
             propertyHelp: {
                 tooltip: 'Select which property from your items to use as the icon',
+            },
+            /* wwEditor:end */
+        },
+
+        activePropertyPath: {
+            label: { en: 'Active Property' },
+            type: 'ObjectPropertyPath',
+            section: 'settings',
+            bindable: true,
+            classes: true,
+            options: content => ({
+                object: content.items?.[0] || {},
+            }),
+            defaultValue: 'active',
+            hidden: (content, sidepanelContent, boundProps) =>
+                content.mode === 'auto' || !Array.isArray(content.items) || !content.items?.length || !boundProps.items,
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'string',
+                tooltip: 'The property path that marks an item as the active/current page. Format: string (e.g. "active" or "isCurrent")',
+            },
+            propertyHelp: {
+                tooltip: 'Select which boolean property from your items marks the active (current page) item',
+            },
+            /* wwEditor:end */
+        },
+        markLastItemActive: {
+            label: { en: 'Mark Last Item Active' },
+            type: 'OnOff',
+            section: 'settings',
+            bindable: true,
+            defaultValue: true,
+            hidden: content => content.mode === 'auto',
+            /* wwEditor:start */
+            bindingValidation: {
+                type: 'boolean',
+                tooltip: 'When on, the last breadcrumb item is treated as the current page (active) unless another item is already active. Format: boolean',
+            },
+            propertyHelp: {
+                tooltip: 'Treat the last item as the current page so active styling applies, even without an internal page link',
             },
             /* wwEditor:end */
         },

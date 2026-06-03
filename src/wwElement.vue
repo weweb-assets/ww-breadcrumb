@@ -244,9 +244,9 @@ export default {
 
             const currentPageId = wwLib.wwWebsiteData.getCurrentPage().linkId;
 
-            return props.content.items.map(item => {
+            const items = props.content.items.map(item => {
                 if (typeof item === 'string') {
-                    return { label: item, hasLink: false };
+                    return { label: item, hasLink: false, isActive: false };
                 }
 
                 // If it's an object, ensure it has a label
@@ -266,8 +266,14 @@ export default {
                         props.content?.iconPropertyPath || 'icon'
                     );
 
-                    // Check if this item is active (if it has an internal link to the current page)
-                    const isActive = link?.type === 'internal' && link?.pageId === currentPageId;
+                    const explicitActive = wwLib.wwUtils.resolveObjectPropertyPath(
+                        item,
+                        props.content?.activePropertyPath || 'active'
+                    );
+
+                    // Active if explicitly flagged, or if it has an internal link to the current page
+                    const isActive =
+                        explicitActive === true || (link?.type === 'internal' && link?.pageId === currentPageId);
 
                     const data = {
                         ...item,
@@ -280,8 +286,16 @@ export default {
                     return data;
                 }
 
-                return { label: 'Invalid item' };
+                return { label: 'Invalid item', isActive: false };
             });
+
+            // Fallback: treat the last item as the current page (active) when nothing is
+            // explicitly active, so active styling applies even with plain string links.
+            if (props.content?.markLastItemActive !== false && items.length && !items.some(item => item.isActive)) {
+                items[items.length - 1].isActive = true;
+            }
+
+            return items;
         });
 
         // Editor state
