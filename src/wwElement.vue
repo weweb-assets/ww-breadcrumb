@@ -244,7 +244,7 @@ export default {
 
             const currentPageId = wwLib.wwWebsiteData.getCurrentPage().linkId;
 
-            return props.content.items.map(item => {
+            const items = props.content.items.map(item => {
                 if (typeof item === 'string') {
                     return { label: item, hasLink: false };
                 }
@@ -282,6 +282,12 @@ export default {
 
                 return { label: 'Invalid item' };
             });
+
+            if (items.length && !items.some(item => item.isActive)) {
+                items[items.length - 1].isActive = true;
+            }
+
+            return items;
         });
 
         // Editor state
