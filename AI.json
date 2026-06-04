@@ -1,8 +1,16 @@
 {
     "metadata": {
         "name": "ww-breadcrumb",
-        "description": "A breadcrumbs navigation element that displays a page hierarchy or custom trail with configurable separators, styles, links, text, and icons.",
-        "keywords": ["breadcrumb", "breadcrumbs", "navigation", "path", "hierarchy", "trail", "links"],
+        "description": "A breadcrumb navigation element that renders a page-hierarchy trail. Two modes: `manual` (provide an `items` array, or bind it to a collection and map fields via labelPropertyPath / urlPropertyPath / iconPropertyPath) and `auto` (items are generated from the current URL matched against the project's pages — `items` is ignored). The current page is highlighted via the active-* style properties: by default the LAST item is treated as active (markLastItemActive), or flag a specific item with `active: true`. Configurable display styles (standard, pills, arrows, underline), separators, colors, typography and spacing; link, icon and text rendering use the three child slots.",
+        "keywords": [
+            "breadcrumb",
+            "breadcrumbs",
+            "navigation",
+            "path",
+            "hierarchy",
+            "trail",
+            "links"
+        ],
         "features": [
             "Manual breadcrumb items",
             "Automatic breadcrumb generation from the current URL",
@@ -48,7 +56,10 @@
             "name": "mode",
             "description": "Controls whether breadcrumb items are provided manually or generated automatically from the current URL path.",
             "type": "string",
-            "options": ["manual", "auto"],
+            "options": [
+                "manual",
+                "auto"
+            ],
             "defaultValue": "manual"
         },
         {
@@ -85,14 +96,27 @@
             "name": "displayStyle",
             "description": "Visual style used to render the breadcrumb trail.",
             "type": "string",
-            "options": ["standard", "pills", "arrows", "underline"],
+            "options": [
+                "standard",
+                "pills",
+                "arrows",
+                "underline"
+            ],
             "defaultValue": "standard"
         },
         {
             "name": "separatorType",
             "description": "Separator displayed between breadcrumb items. Ignored by the arrows display style.",
             "type": "string",
-            "options": ["slash", "arrow", "chevron", "dot", "pipe", "dash", "custom"],
+            "options": [
+                "slash",
+                "arrow",
+                "chevron",
+                "dot",
+                "pipe",
+                "dash",
+                "custom"
+            ],
             "defaultValue": "slash"
         },
         {
@@ -165,19 +189,36 @@
             "name": "activeItemFontWeight",
             "description": "Font weight applied to the active/current breadcrumb item.",
             "type": "string",
-            "options": ["normal", "bold", "100", "200", "300", "400", "500", "600", "700", "800", "900"],
+            "options": [
+                "normal",
+                "bold",
+                "100",
+                "200",
+                "300",
+                "400",
+                "500",
+                "600",
+                "700",
+                "800",
+                "900"
+            ],
             "defaultValue": "600"
         },
         {
             "name": "hoverDecoration",
             "description": "Text decoration applied when hovering breadcrumb links.",
             "type": "string",
-            "options": ["none", "underline", "overline", "line-through"],
+            "options": [
+                "none",
+                "underline",
+                "overline",
+                "line-through"
+            ],
             "defaultValue": "none"
         },
         {
             "name": "itemSpacing",
-            "description": "Gap between breadcrumb items.",
+            "description": "Gap (space) between adjacent breadcrumb items, e.g. '8px'.",
             "type": "string",
             "defaultValue": "8px"
         },
@@ -252,5 +293,9 @@
             "example": "[{\"uid\":\"auto_breadcrumb\",\"tag\":\"ww-breadcrumb\",\"name\":\"Auto Breadcrumb\",\"content\":{\"default\":{\"mode\":\"auto\",\"items\":[],\"labelPropertyPath\":\"label\",\"urlPropertyPath\":\"link\",\"iconPropertyPath\":\"icon\",\"displayStyle\":\"standard\",\"separatorType\":\"chevron\",\"customSeparator\":\"\",\"collapse\":false,\"linkColor\":\"#334155\",\"activeColor\":\"#0F172A\",\"separatorColor\":\"#94A3B8\",\"iconColor\":\"#64748B\",\"activeIconColor\":\"#0F172A\",\"pillBackgroundColor\":\"#f0f0f0\",\"activePillBackgroundColor\":\"#e0e0e0\",\"arrowColor\":\"#E2E8F0\",\"fontSize\":\"14px\",\"activeItemFontWeight\":\"700\",\"hoverDecoration\":\"none\",\"itemSpacing\":\"0px\",\"separatorSpacing\":\"10px\",\"separatorSize\":\"16px\"}},\"slots\":[{\"slotKey\":\"linkElement\",\"elements\":[\"auto_breadcrumb_link\"]},{\"slotKey\":\"iconElement\",\"elements\":[\"auto_breadcrumb_icon\"]},{\"slotKey\":\"textElement\",\"elements\":[\"auto_breadcrumb_text\"]}]},{\"uid\":\"auto_breadcrumb_link\",\"tag\":\"ww-div\",\"name\":\"Auto Breadcrumb Link\",\"style\":{\"default\":{\"display\":\"inline-flex\",\"alignItems\":\"center\",\"gap\":\"4px\"}}},{\"uid\":\"auto_breadcrumb_icon\",\"tag\":\"ww-icon\",\"name\":\"Auto Breadcrumb Icon\",\"style\":{\"default\":{\"width\":\"16px\",\"height\":\"16px\"}}},{\"uid\":\"auto_breadcrumb_text\",\"tag\":\"ww-text\",\"name\":\"Auto Breadcrumb Text\",\"content\":{\"default\":{\"tag\":\"span\"}}}]"
         }
     ],
-    "dependencies": ["ww-div", "ww-icon", "ww-text"]
+    "dependencies": [
+        "ww-div",
+        "ww-icon",
+        "ww-text"
+    ]
 }
