@@ -1,8 +1,16 @@
 {
     "metadata": {
         "name": "ww-breadcrumb",
-        "description": "A breadcrumbs navigation element that displays a page hierarchy or custom trail with configurable separators, styles, links, text, and icons.",
-        "keywords": ["breadcrumb", "breadcrumbs", "navigation", "path", "hierarchy", "trail", "links"],
+        "description": "A breadcrumb navigation element that renders a page-hierarchy trail. Two modes: `manual` (provide an `items` array, or bind it to a collection and map fields via labelPropertyPath / urlPropertyPath / iconPropertyPath) and `auto` (items are generated from the current URL matched against the project's pages — `items` is ignored). The current page is highlighted via the active-* style properties: the LAST item is automatically treated as the current page (active). Configurable display styles (standard, pills, arrows, underline), separators, colors, typography and spacing; link, icon and text rendering use the three child slots.",
+        "keywords": [
+            "breadcrumb",
+            "breadcrumbs",
+            "navigation",
+            "path",
+            "hierarchy",
+            "trail",
+            "links"
+        ],
         "features": [
             "Manual breadcrumb items",
             "Automatic breadcrumb generation from the current URL",
@@ -15,7 +23,7 @@
     "properties": [
         {
             "name": "items",
-            "description": "Breadcrumb items used in manual mode. Each item can be a string or an object with label, link, and optional icon fields. Labels may be multilingual objects.",
+            "description": "Breadcrumb items used in manual mode. Each item can be a string or an object with label, link, and optional icon fields. Labels may be multilingual objects. ALWAYS seed at least 3 items (one per page in the trail) — never generate a single-item breadcrumb. The last item represents the current page and is automatically highlighted as active.",
             "type": "array",
             "defaultValue": [
                 {
@@ -48,24 +56,27 @@
             "name": "mode",
             "description": "Controls whether breadcrumb items are provided manually or generated automatically from the current URL path.",
             "type": "string",
-            "options": ["manual", "auto"],
+            "options": [
+                "manual",
+                "auto"
+            ],
             "defaultValue": "manual"
         },
         {
             "name": "labelPropertyPath",
-            "description": "Property path used to read the display label from each item object.",
+            "description": "Property path used to read the display label from each item object. Only relevant when items is bound to a collection: set it to the collection field holding the label (e.g. 'name'). Leaving it at the default 'label' when the data uses a different key yields empty items. Ignored for inline literal item arrays.",
             "type": "string",
             "defaultValue": "label"
         },
         {
             "name": "urlPropertyPath",
-            "description": "Property path used to read the link value from each item object. Hidden in auto mode.",
+            "description": "Property path used to read the link value from each item object. Only relevant when items is bound to a collection: set it to the collection field holding the link/route (e.g. 'route'). Ignored for inline literal item arrays and in auto mode.",
             "type": "string",
             "defaultValue": "link"
         },
         {
             "name": "iconPropertyPath",
-            "description": "Property path used to read the optional icon name from each item object.",
+            "description": "Property path used to read the optional icon name from each item object. Only relevant when items is bound to a collection: set it to the collection field that holds the icon (e.g. 'glyph'). Ignored for inline literal item arrays.",
             "type": "string",
             "defaultValue": "icon"
         },
@@ -73,14 +84,27 @@
             "name": "displayStyle",
             "description": "Visual style used to render the breadcrumb trail.",
             "type": "string",
-            "options": ["standard", "pills", "arrows", "underline"],
+            "options": [
+                "standard",
+                "pills",
+                "arrows",
+                "underline"
+            ],
             "defaultValue": "standard"
         },
         {
             "name": "separatorType",
             "description": "Separator displayed between breadcrumb items. Ignored by the arrows display style.",
             "type": "string",
-            "options": ["slash", "arrow", "chevron", "dot", "pipe", "dash", "custom"],
+            "options": [
+                "slash",
+                "arrow",
+                "chevron",
+                "dot",
+                "pipe",
+                "dash",
+                "custom"
+            ],
             "defaultValue": "slash"
         },
         {
@@ -153,19 +177,36 @@
             "name": "activeItemFontWeight",
             "description": "Font weight applied to the active/current breadcrumb item.",
             "type": "string",
-            "options": ["normal", "bold", "100", "200", "300", "400", "500", "600", "700", "800", "900"],
+            "options": [
+                "normal",
+                "bold",
+                "100",
+                "200",
+                "300",
+                "400",
+                "500",
+                "600",
+                "700",
+                "800",
+                "900"
+            ],
             "defaultValue": "600"
         },
         {
             "name": "hoverDecoration",
             "description": "Text decoration applied when hovering breadcrumb links.",
             "type": "string",
-            "options": ["none", "underline", "overline", "line-through"],
+            "options": [
+                "none",
+                "underline",
+                "overline",
+                "line-through"
+            ],
             "defaultValue": "none"
         },
         {
             "name": "itemSpacing",
-            "description": "Gap between breadcrumb items.",
+            "description": "Gap (space) between adjacent breadcrumb items, e.g. '8px'.",
             "type": "string",
             "defaultValue": "8px"
         },
@@ -211,11 +252,14 @@
     ],
     "variables": [],
     "specifications": [
+        "ALWAYS seed at least 3 breadcrumb items (one per page in the trail). Never generate a single-item breadcrumb, even if the prompt mentions fewer pages.",
         "Use mode manual when the desired trail is known from the prompt, and provide the full items array.",
         "Use mode auto only when the breadcrumb should reflect the current URL path and project pages.",
-        "In manual mode, keep labelPropertyPath, urlPropertyPath, and iconPropertyPath aligned with the item object keys.",
+        "ACTIVE STYLING: the current item is highlighted via activeColor, activeItemFontWeight, activeIconColor, and (pills style) activePillBackgroundColor. The LAST breadcrumb item is automatically treated as the current page, so these properties take effect on it by default (an item whose link is an internal link to the current page is also detected as active). Requests like 'make the active item bold dark red' or 'pills with a darker active background' ARE supported — just set the active* properties.",
+        "MANUAL + BOUND COLLECTION: when items is bound to a collection/array of custom objects, you MUST set labelPropertyPath, urlPropertyPath, and iconPropertyPath to the actual field names of those objects (e.g. labelPropertyPath='name', urlPropertyPath='route', iconPropertyPath='glyph'). Leaving them at the defaults label/link/icon when the data uses different keys yields empty items. These path properties are ignored for inline literal item arrays.",
+        "AUTO MODE: in auto mode the items property is IGNORED — breadcrumb items are generated from the current URL path matched against the project's pages. Set items to [] and do not set the *PropertyPath properties. Auto output depends on real project pages and their paths, so prefer manual mode when the exact trail is known from the prompt. Prefer the 'standard' display style for auto (the 'arrows' style hides separators and can look broken).",
         "For linked items, use WeWeb link objects for internal navigation when page IDs are known; use strings only for simple URL paths or when the target page is unknown.",
-        "The last item usually represents the current page. It may omit a link or link to the current page.",
+        "The last item usually represents the current page. It may omit a link or link to the current page, and is highlighted as active by default.",
         "When using icons, include icon names on the items and keep iconElement as a ww-icon child slot.",
         "Separators are not slots. Never create a separate ww-icon child or sibling for a separator; the component ignores it.",
         "For icon-like separators, set separatorType to custom and put inline SVG or a text glyph such as › in customSeparator.",
@@ -233,9 +277,13 @@
             "example": "[{\"uid\":\"dashboard_breadcrumb\",\"tag\":\"ww-breadcrumb\",\"name\":\"Dashboard Breadcrumb\",\"content\":{\"default\":{\"mode\":\"manual\",\"items\":[{\"label\":\"Dashboard\",\"link\":\"/dashboard\",\"icon\":\"lucide/layout-dashboard\"},{\"label\":\"Reports\",\"link\":\"/dashboard/reports\"},{\"label\":\"Revenue\"}],\"labelPropertyPath\":\"label\",\"urlPropertyPath\":\"link\",\"iconPropertyPath\":\"icon\",\"displayStyle\":\"pills\",\"separatorType\":\"slash\",\"customSeparator\":\"\",\"collapse\":true,\"linkColor\":\"#475569\",\"activeColor\":\"#0F172A\",\"separatorColor\":\"#CBD5E1\",\"iconColor\":\"#64748B\",\"activeIconColor\":\"#2563EB\",\"pillBackgroundColor\":\"#F1F5F9\",\"activePillBackgroundColor\":\"#DBEAFE\",\"arrowColor\":\"#FFFFFF\",\"fontSize\":\"13px\",\"activeItemFontWeight\":\"700\",\"hoverDecoration\":\"none\",\"itemSpacing\":\"6px\",\"separatorSpacing\":\"8px\",\"separatorSize\":\"12px\"}},\"slots\":[{\"slotKey\":\"linkElement\",\"elements\":[\"dashboard_breadcrumb_link\"]},{\"slotKey\":\"iconElement\",\"elements\":[\"dashboard_breadcrumb_icon\"]},{\"slotKey\":\"textElement\",\"elements\":[\"dashboard_breadcrumb_text\"]}]},{\"uid\":\"dashboard_breadcrumb_link\",\"tag\":\"ww-div\",\"name\":\"Dashboard Breadcrumb Link\",\"style\":{\"default\":{\"display\":\"inline-flex\",\"alignItems\":\"center\",\"gap\":\"6px\",\"padding\":\"4px 8px\"}}},{\"uid\":\"dashboard_breadcrumb_icon\",\"tag\":\"ww-icon\",\"name\":\"Dashboard Breadcrumb Icon\",\"style\":{\"default\":{\"width\":\"14px\",\"height\":\"14px\"}}},{\"uid\":\"dashboard_breadcrumb_text\",\"tag\":\"ww-text\",\"name\":\"Dashboard Breadcrumb Text\",\"content\":{\"default\":{\"tag\":\"span\"}},\"style\":{\"default\":{\"fontSize\":\"13px\",\"fontWeight\":\"500\"}}}]"
         },
         {
-            "description": "Automatic breadcrumb using arrow display style.",
-            "example": "[{\"uid\":\"auto_breadcrumb\",\"tag\":\"ww-breadcrumb\",\"name\":\"Auto Breadcrumb\",\"content\":{\"default\":{\"mode\":\"auto\",\"items\":[],\"labelPropertyPath\":\"label\",\"urlPropertyPath\":\"link\",\"iconPropertyPath\":\"icon\",\"displayStyle\":\"arrows\",\"separatorType\":\"slash\",\"customSeparator\":\"\",\"collapse\":false,\"linkColor\":\"#334155\",\"activeColor\":\"#0F172A\",\"separatorColor\":\"#94A3B8\",\"iconColor\":\"#64748B\",\"activeIconColor\":\"#0F172A\",\"pillBackgroundColor\":\"#f0f0f0\",\"activePillBackgroundColor\":\"#e0e0e0\",\"arrowColor\":\"#E2E8F0\",\"fontSize\":\"14px\",\"activeItemFontWeight\":\"700\",\"hoverDecoration\":\"none\",\"itemSpacing\":\"0px\",\"separatorSpacing\":\"10px\",\"separatorSize\":\"16px\"}},\"slots\":[{\"slotKey\":\"linkElement\",\"elements\":[\"auto_breadcrumb_link\"]},{\"slotKey\":\"iconElement\",\"elements\":[\"auto_breadcrumb_icon\"]},{\"slotKey\":\"textElement\",\"elements\":[\"auto_breadcrumb_text\"]}]},{\"uid\":\"auto_breadcrumb_link\",\"tag\":\"ww-div\",\"name\":\"Auto Breadcrumb Link\",\"style\":{\"default\":{\"display\":\"inline-flex\",\"alignItems\":\"center\",\"gap\":\"4px\"}}},{\"uid\":\"auto_breadcrumb_icon\",\"tag\":\"ww-icon\",\"name\":\"Auto Breadcrumb Icon\",\"style\":{\"default\":{\"width\":\"16px\",\"height\":\"16px\"}}},{\"uid\":\"auto_breadcrumb_text\",\"tag\":\"ww-text\",\"name\":\"Auto Breadcrumb Text\",\"content\":{\"default\":{\"tag\":\"span\"}}}]"
+            "description": "Automatic breadcrumb generated from the current URL path (items ignored). Uses the standard display style.",
+            "example": "[{\"uid\":\"auto_breadcrumb\",\"tag\":\"ww-breadcrumb\",\"name\":\"Auto Breadcrumb\",\"content\":{\"default\":{\"mode\":\"auto\",\"items\":[],\"labelPropertyPath\":\"label\",\"urlPropertyPath\":\"link\",\"iconPropertyPath\":\"icon\",\"displayStyle\":\"standard\",\"separatorType\":\"chevron\",\"customSeparator\":\"\",\"collapse\":false,\"linkColor\":\"#334155\",\"activeColor\":\"#0F172A\",\"separatorColor\":\"#94A3B8\",\"iconColor\":\"#64748B\",\"activeIconColor\":\"#0F172A\",\"pillBackgroundColor\":\"#f0f0f0\",\"activePillBackgroundColor\":\"#e0e0e0\",\"arrowColor\":\"#E2E8F0\",\"fontSize\":\"14px\",\"activeItemFontWeight\":\"700\",\"hoverDecoration\":\"none\",\"itemSpacing\":\"0px\",\"separatorSpacing\":\"10px\",\"separatorSize\":\"16px\"}},\"slots\":[{\"slotKey\":\"linkElement\",\"elements\":[\"auto_breadcrumb_link\"]},{\"slotKey\":\"iconElement\",\"elements\":[\"auto_breadcrumb_icon\"]},{\"slotKey\":\"textElement\",\"elements\":[\"auto_breadcrumb_text\"]}]},{\"uid\":\"auto_breadcrumb_link\",\"tag\":\"ww-div\",\"name\":\"Auto Breadcrumb Link\",\"style\":{\"default\":{\"display\":\"inline-flex\",\"alignItems\":\"center\",\"gap\":\"4px\"}}},{\"uid\":\"auto_breadcrumb_icon\",\"tag\":\"ww-icon\",\"name\":\"Auto Breadcrumb Icon\",\"style\":{\"default\":{\"width\":\"16px\",\"height\":\"16px\"}}},{\"uid\":\"auto_breadcrumb_text\",\"tag\":\"ww-text\",\"name\":\"Auto Breadcrumb Text\",\"content\":{\"default\":{\"tag\":\"span\"}}}]"
         }
     ],
-    "dependencies": ["ww-div", "ww-icon", "ww-text"]
+    "dependencies": [
+        "ww-div",
+        "ww-icon",
+        "ww-text"
+    ]
 }
